@@ -390,6 +390,10 @@ detect_end_of_segment(RecogProcess *r, int time)
     }
   }
 
+  if (time >= MAXSPSEGMENTLEN)
+  {
+    detected = TRUE;
+  }
 
 #ifdef SPSEGMENT_NAIST
   /************************************************************************/
@@ -555,20 +559,22 @@ detect_end_of_segment(RecogProcess *r, int time)
 #endif /* SP_BREAK_DEBUG */
     /* sp 区間長チェック */
     /* check length of the duration*/
-    if (d->sp_duration < r->config->successive.sp_frame_duration) {
+    if (time < MAXSPSEGMENTLEN && d->sp_duration < r->config->successive.sp_frame_duration) {
       /* 短すぎる: 第１パスを中断せず続行 */
       /* too short segment: not break, continue 1st pass */
 #ifdef SP_BREAK_DEBUG
       jlog("DEBUG: too short (%d<%d), ignored\n", d->sp_duration, r->config->successive.sp_frame_duration);
 #endif /* SP_BREAK_DEBUG */
-    } else if (d->first_sparea) {
+    } 
+    else if (d->first_sparea) {
       /* 最初のsp区間は silB にあたるので,第１パスを中断せず続行 */
       /* do not break at first sp segment: they are silB */
       d->first_sparea = FALSE;
 #ifdef SP_BREAK_DEBUG
       jlog("DEBUG: first silence, ignored\n");
 #endif /* SP_BREAK_DEBUG */
-    } else {
+    } 
+    else {
       /* 区間終了確定, 第１パスを中断して第2パスへ */
       /* break 1st pass */
 #ifdef SP_BREAK_DEBUG
