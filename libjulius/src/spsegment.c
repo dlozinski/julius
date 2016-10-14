@@ -510,6 +510,16 @@ detect_end_of_segment(RecogProcess *r, int time)
   /* sp区間持続チェック */
   /* check sp segment duration */
   if (d->in_sparea && detected) {       /* we are already in sp segment and sp continues */
+    if (time >= MAXSPSEGMENTLEN)
+    {
+      /* break 1st pass */
+      /* store begging frame of the segment */
+      r->am->mfcc->sparea_start = d->tmp_sparea_start;
+      /* resume word = most likely sp word on end frame of the segment */
+      r->sp_break_last_word = d->last_tre_word;
+      /*** segment: [sparea_start - time-1] ***/
+      return(TRUE);
+    }	  
     d->sp_duration++;           /* increment count */
 #ifdef SP_BREAK_RESUME_WORD_BEGIN
     /* resume word at the "beggining" of sp segment */
@@ -554,7 +564,7 @@ detect_end_of_segment(RecogProcess *r, int time)
 #endif /* SP_BREAK_DEBUG */
     /* sp 区間長チェック */
     /* check length of the duration*/
-    if (time < MAXSPSEGMENTLEN && d->sp_duration < r->config->successive.sp_frame_duration) {
+    if (d->sp_duration < r->config->successive.sp_frame_duration) {
       /* 短すぎる: 第１パスを中断せず続行 */
       /* too short segment: not break, continue 1st pass */
 #ifdef SP_BREAK_DEBUG
