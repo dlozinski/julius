@@ -944,8 +944,8 @@ result_pass2(Recog *recog, void *dummy)
     if (align->num > 1) {
         for (i = 0; i < align->num; i++) {
             int startBase = align->end_frame[0];
-            int startInt = recog->currBase + align->begin_frame[i] - startBase;
-            int endInt = recog->currBase + align->end_frame[i] - startBase;
+            int startInt = recog->curr_base + align->begin_frame[i] - startBase;
+            int endInt = recog->curr_base + align->end_frame[i] - startBase;
             if (i == 0) // <s> need to reduce align by lengt of startup <s>
             {
                 startInt = endInt;
