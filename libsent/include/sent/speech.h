@@ -47,7 +47,7 @@
  * So you have to set large value enough.
  * 
  */
-#define MAXSEQNUM     150
+#define MAXSEQNUM     450
 
 /**
  * @brief Maximum length of an input in samples
