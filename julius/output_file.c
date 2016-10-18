@@ -6,7 +6,7 @@
  * </EN>
  * 
  * <JA>
- * @brief  «ßº±∑Î≤Ã§Ú∏ƒ Ã•’•°•§•Î§ÿΩ–Œœ§π§Î. 
+ * @brief  Ë™çË≠òÁµêÊûú„ÇíÂÄãÂà•„Éï„Ç°„Ç§„É´„Å∏Âá∫Âäõ„Åô„Çã. 
  * </JA>
  * 
  * @author Akinobu Lee
@@ -90,25 +90,25 @@ outfile_sentence(Recog *recog, void *dummy)
     if (r->result.status < 0) {
       switch(r->result.status) {
       case J_RESULT_STATUS_REJECT_POWER:
-	fprintf(fp, "<input rejected by power>\n");
+	if (fp != NULL) fprintf(fp, "<input rejected by power>\n");
 	break;
       case J_RESULT_STATUS_TERMINATE:
-	fprintf(fp, "<input teminated by request>\n");
+	if (fp != NULL) fprintf(fp, "<input teminated by request>\n");
 	break;
       case J_RESULT_STATUS_ONLY_SILENCE:
-	fprintf(fp, "<input rejected by decoder (silence input result)>\n");
+	if (fp != NULL) fprintf(fp, "<input rejected by decoder (silence input result)>\n");
 	break;
       case J_RESULT_STATUS_REJECT_GMM:
-	fprintf(fp, "<input rejected by GMM>\n");
+	if (fp != NULL) fprintf(fp, "<input rejected by GMM>\n");
 	break;
       case J_RESULT_STATUS_REJECT_SHORT:
-	fprintf(fp, "<input rejected by short input>\n");
+	if (fp != NULL) fprintf(fp, "<input rejected by short input>\n");
 	break;
       case J_RESULT_STATUS_REJECT_LONG:
-	fprintf(fp, "<input rejected by long input>\n");
+	if (fp != NULL) fprintf(fp, "<input rejected by long input>\n");
 	break;
       case J_RESULT_STATUS_FAIL:
-	fprintf(fp, "<search failed>\n");
+	if (fp != NULL) fprintf(fp, "<search failed>\n");
 	break;
       }
       continue;
