@@ -49,7 +49,7 @@ outfile_set_fname(char *input_filename)
 static void
 outfile_open(Recog *recog, void *dummy)
 {
-  if ((fp = fopen(fname, "w")) == NULL) {
+  if ((fp = fopen(fname, "w+")) == NULL) {
     fprintf(stderr, "output_rec: failed to open \"%s\", result not saved\n", fname);
     return;
   }
@@ -179,45 +179,61 @@ outfile_sentence(Recog *recog, void *dummy)
 	case PER_STATE:
 	  fprintf(fp, "-- state alignment --\n"); break;
 	}
-	fprintf(fp, " id: from  to    n_score    unit\n");
-	fprintf(fp, " ----------------------------------------\n");
-	for(i=0;i<align->num;i++) {
-	  fprintf(fp, "[%4d %4d]  %f  ", align->begin_frame[i], align->end_frame[i], align->avgscore[i]);
-	  switch(align->unittype) {
-	  case PER_WORD:
-	    fprintf(fp, "%s\t[%s]\n", winfo->wname[align->w[i]], winfo->woutput[align->w[i]]);
-	    break;
-	  case PER_PHONEME:
-	    p = align->ph[i];
-	    if (p->is_pseudo) {
-	      fprintf(fp, "{%s}\n", p->name);
-	    } else if (strmatch(p->name, p->body.defined->name)) {
-	      fprintf(fp, "%s\n", p->name);
-	    } else {
-	      fprintf(fp, "%s[%s]\n", p->name, p->body.defined->name);
-	    }
-	    break;
-	  case PER_STATE:
-	    p = align->ph[i];
-	    if (p->is_pseudo) {
-	      fprintf(fp, "{%s}", p->name);
-	    } else if (strmatch(p->name, p->body.defined->name)) {
-	      fprintf(fp, "%s", p->name);
-	    } else {
-	      fprintf(fp, "%s[%s]", p->name, p->body.defined->name);
-	    }
-	    if (r->am->hmminfo->multipath) {
-	      if (align->is_iwsp[i]) {
-		fprintf(fp, " #%d (sp)\n", align->loc[i]);
-	      } else {
-		fprintf(fp, " #%d\n", align->loc[i]);
-	      }
-	    } else {
-	      fprintf(fp, " #%d\n", align->loc[i]);
-	    }
-	    break;
-	  }
-	}
+  fprintf(fp, " id: from      to     confidence        unit\n");
+  fprintf(fp, " ----------------------------------------\n");
+  if (align->num > 1) {
+    for (i = 0; i < align->num; i++) {
+      int startBase = align->end_frame[0];
+      int startInt = recog->curr_base + align->begin_frame[i] - startBase;
+      int endInt = recog->curr_base + align->end_frame[i] - startBase;
+      if (i == 0) // <s> need to reduce align by lengt of startup <s>
+      {
+        startInt = endInt;
+        endInt = endInt;
+      }
+      fprintf(fp, "[% 8d % 8d] % 5.6f  ", startInt, endInt, s->confidence[i]);
+      switch (align->unittype) {
+      case PER_WORD:
+        fprintf(fp, "%s\t[%s]\n", winfo->wname[align->w[i]], winfo->woutput[align->w[i]]);
+        break;
+      case PER_PHONEME:
+        p = align->ph[i];
+        if (p->is_pseudo) {
+          fprintf(fp, "{%s}\n", p->name);
+        }
+        else if (strmatch(p->name, p->body.defined->name)) {
+          fprintf(fp, "%s\n", p->name);
+        }
+        else {
+          fprintf(fp, "%s[%s]\n", p->name, p->body.defined->name);
+        }
+        break;
+      case PER_STATE:
+        p = align->ph[i];
+        if (p->is_pseudo) {
+          fprintf(fp, "{%s}", p->name);
+        }
+        else if (strmatch(p->name, p->body.defined->name)) {
+          fprintf(fp, "%s", p->name);
+        }
+        else {
+          fprintf(fp, "%s[%s]", p->name, p->body.defined->name);
+        }
+        if (r->am->hmminfo->multipath) {
+          if (align->is_iwsp[i]) {
+            fprintf(fp, " #%d (sp)\n", align->loc[i]);
+          }
+          else {
+            fprintf(fp, " #%d\n", align->loc[i]);
+          }
+        }
+        else {
+          fprintf(fp, " #%d\n", align->loc[i]);
+        }
+        break;
+      }
+    }
+  }
 
 	fprintf(fp, "re-computed AM score: %f\n", align->allscore);
 	
