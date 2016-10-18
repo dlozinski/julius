@@ -70,7 +70,8 @@
 #include <sent/stddefs.h>
 #include <sent/speech.h>
 #include <sent/adin.h>
-
+#include <string.h> // strrchr 
+ 
 static FILE *gfp;		///< File pointer of current input file
 static boolean wav_p;		///< TRUE if input is WAVE file, FALSE if RAW file
 static int maxlen;		///< Number of samples, described in the header of WAVE file
@@ -343,6 +344,27 @@ adin_file_standby(int freq, void *arg)
   return(TRUE);
 }
 
+void remove_out_file(const char *wavfilename)
+{
+	// check if OUT file is present, is yes then delete it
+	char outfilename[MAXPATHLEN];
+	memset(outfilename, 0, MAXPATHLEN);
+	const char *extension;
+	int dotposition = 0;
+	FILE *outfile;
+
+	extension = strrchr(wavfilename, '.');
+	dotposition = extension - wavfilename;
+	strncpy(outfilename, wavfilename, dotposition);
+	strncpy(outfilename + dotposition, ".out", 4);
+	outfile = fopen(outfilename, "r");
+	if (outfile != NULL)
+	{
+		fclose(outfile);
+		remove(outfilename);
+	}
+}
+
 /** 
  * @brief  Begin reading audio data from a file.
  *
@@ -389,8 +411,9 @@ adin_file_begin(char *filename)
     }
     /* open input file */
     if (adin_file_open(speechfilename) == FALSE) {
-      jlog("Error: adin_file: failed to read speech data: \"%s\"\n", speechfilename);
+	  jlog("Error: adin_file: failed to read speech data: \"%s\"\n", speechfilename);
     } else {
+      remove_out_file(speechfilename);
       jlog("Stat: adin_file: input speechfile: %s\n", speechfilename);
       readp = TRUE;
     }
