@@ -65,7 +65,7 @@
 #define MAXSPEECHLEN  320000
 
 // that is 60 seconds (100 frames per second)
-#define MAXSPSEGMENTLEN 6000
+#define MAXSEGMENTLEN 6000
 
 /**
  * @brief Maximum length of input delay in seconds

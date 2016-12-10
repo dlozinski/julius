@@ -279,6 +279,17 @@ detect_end_of_segment(RecogProcess *r, int time)
 
   d = &(r->pass1);
 
+  if (time >= MAXSEGMENTLEN) {
+    if (time == MAXSEGMENTLEN) {
+      d->tmp_sparea_start = time;
+      d->sp_duration = 0;
+    }
+    else {
+      d->sp_duration++;
+	}
+    d->in_sparea = TRUE;
+  }
+
 #ifdef SPSEGMENT_NAIST
 
   if (! d->after_trigger) {
@@ -510,16 +521,6 @@ detect_end_of_segment(RecogProcess *r, int time)
   /* sp区間持続チェック */
   /* check sp segment duration */
   if (d->in_sparea && detected) {       /* we are already in sp segment and sp continues */
-    if (time >= MAXSPSEGMENTLEN)
-    {
-      /* break 1st pass */
-      /* store begging frame of the segment */
-      r->am->mfcc->sparea_start = d->tmp_sparea_start;
-      /* resume word = most likely sp word on end frame of the segment */
-      r->sp_break_last_word = d->last_tre_word;
-      /*** segment: [sparea_start - time-1] ***/
-      return(TRUE);
-    }	  
     d->sp_duration++;           /* increment count */
 #ifdef SP_BREAK_RESUME_WORD_BEGIN
     /* resume word at the "beggining" of sp segment */
