@@ -433,6 +433,9 @@ void dnn_clear(DNNData *dnn)
     }
     free(dnn->h);
   }
+	
+  dnn_layer_clear(&(dnn->o));
+	
   if (dnn->state_prior) free(dnn->state_prior);
   for (i = 0; i < dnn->hnum; i++) {
     if (dnn->work[i]) {
