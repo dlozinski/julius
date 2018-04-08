@@ -253,6 +253,15 @@ void CMN(float **mfcc, int frame_num, int dim, CMNWork *c)
  * @param frame_num [in] number of frames
  * @param para [in] configuration parameters
  */
+/* LMP - order of calculation was changed for DNN
+ as in HTK features are calculated in such a way that:
+ _Z (mean and variance done first)
+ mean/variance normalization from external file (cmean_init_set second)
+ this mean that if we deal with GMMs MFCC with external normalization file we
+ might get an error in calculations,
+ but since cmean_init_set is unlikely to ever be used with GMMs and MFCCs
+ by me anymore it is left with as little changes as possible for 
+ future merging simplicity*/
 void MVN(float **mfcc, int frame_num, Value *para, CMNWork *c)
 {
   int i, t;
@@ -261,21 +270,6 @@ void MVN(float **mfcc, int frame_num, Value *para, CMNWork *c)
   int basedim;
 
   basedim = para->mfcc_dim + (para->c0 ? 1 : 0);
-
-  if (c != NULL && c->cmean_init_set) {
-    /* has initial param, use it permanently */
-    for(t = 0; t < frame_num; t++){
-      if (para->cmn) {
-	/* mean normalization (base MFCC only) */
-	for(i = 0; i < basedim; i++) mfcc[t][i] -= c->cmean_init[i];
-      }
-      if (para->cvn) {
-	/* variance normalization (full MFCC) */
-	for(i = 0; i < para->veclen; i++) mfcc[t][i] /= sqrt(c->cvar_init[i]);
-      }
-    }
-    return;
-  }
 
   mfcc_mean = (float *)mycalloc(para->veclen, sizeof(float));
   if (para->cvn) mfcc_sd = (float *)mycalloc(para->veclen, sizeof(float));
@@ -306,6 +300,30 @@ void MVN(float **mfcc, int frame_num, Value *para, CMNWork *c)
     if (para->cvn) {
       /* variance normalization (full MFCC) */
       for(i = 0; i < para->veclen; i++) mfcc[t][i] /= mfcc_sd[i];
+
+    }
+  }
+
+  /* LMP - order was changed to apply DNN mean & variance calculation
+     after MFCC (or other) _Z feature is done
+     forced by the way HTK does things 
+     somehow there is disparity between Julius and HTK DNN implementations
+     where we need to hack order of calculations for DNN
+  
+     in case of non microphone and no mean&variance files provided via -cvn params
+     from JCONF this method behaves the same (even when DNN preprocess option is enabled) */
+
+  if (c != NULL && c->cmean_init_set) {
+    // has initial param, use it permanently
+    for (t = 0; t < frame_num; t++) {
+      if (para->cmn) {
+        // mean normalization (base MFCC only) 
+        for (i = 0; i < basedim; i++) mfcc[t][i] -= c->cmean_init[i];
+      }
+      if (para->cvn) {
+        // variance normalization (full MFCC)
+        for (i = 0; i < para->veclen; i++) mfcc[t][i] /= sqrt(c->cvar_init[i]);
+      }
     }
   }
 

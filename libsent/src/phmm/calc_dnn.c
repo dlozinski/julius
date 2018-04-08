@@ -438,7 +438,7 @@ void dnn_clear(DNNData *dnn)
 	
   if (dnn->state_prior) free(dnn->state_prior);
   for (i = 0; i < dnn->hnum; i++) {
-    if (dnn->work[i]) {
+    if (dnn->work != NULL && dnn->work[i] != NULL) {
 #ifdef SIMD_ENABLED
       myfree_simd_aligned(dnn->work[i]);
 #else
@@ -557,8 +557,12 @@ boolean dnn_setup(DNNData *dnn, int veclen, int contextlen, int inputnodes, int 
 	return FALSE;
       }
       dnn->state_prior[id] = val * prior_factor;
-      // log10-nize prior
-      dnn->state_prior[id] = log10(dnn->state_prior[id]);
+      /* log10-nize prior
+         LMP - this line is commented out as it is targeting
+         HTK which is calculating in natural logarithms and
+         input data is already prepared to be in 
+         log10 by python script
+      dnn->state_prior[id] = log10(dnn->state_prior[id]); */
     }
     fclose(fp);
     jlog("Stat: dnn_init: state prior loaded: %s\n", priorfile);
