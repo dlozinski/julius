@@ -1,3 +1,20 @@
+# This version of Julius is a modification of original Julius forked from:
+https://github.com/julius-speech/julius
+
+# Changes from original Julius:
+My changes (palles-77) include the following:
+- support for HTK 3.5.2 trained DNN models converted to Julius format (modified files are calc_dnn.c and wav2mfcc-buffer.c)
+- time alignment from beginning of the file, not the beginning of the segment,
+- calculation of overall decoding time spent,
+- few minor memory leak fixes.
+
+# Deep Neural Network Models (support for English, soon for Polish).
+They can be downloaded from https://juliusmodels.sf.net
+
+Everything else is as in original version of Julius (again big thanks to prof. Akinobu Lee for his work and the HTK team at Cambridge University for helping me to develop the model)
+
+---------------------------------------
+
 (Moved from julius.osdn.jp since 2015/09, this is official)  
 (Forum has been closed.  Please [make an issues](https://github.com/julius-speech/julius/issues) for questions and discussions about Julius)
 
@@ -56,7 +73,7 @@ Version 4.4 supports stand-alone DNN-HMM support, and several new
 tools and bug fixes are included.  See the "Release.txt" file for the
 full list of updates.  Run with "-help" to see full list of options.
 
-# Tools and Assets
+# Toolkit and Assets
 
 There are also toolkit and assets to run Julius.  They are maintained by the Julius development team.  You can get them fron the following Github pages:
 
@@ -71,10 +88,6 @@ Documents, sample files and conversion tools to use and build a recognition gram
 ## [Speech Segmentation Toolkit](https://github.com/julius-speech/segmentation-kit)
 
 This is a handy toolkit to do phoneme segmentation (aka phoneme alignments) for speech audio file using Julius. Given pairs of speech audio file and its transcription, this toolkit perform Viterbi alignment to get the beginning and ending time of each phoneme.  This toolkit is available at [its GitHub page](https://github.com/julius-speech/segmentation-kit).
-
-## [Prompter](https://github.com/julius-speech/prompter)
-
-Prompter is a perl/Tkx based tiny program that displays recognition results of Julius in a scrolling caption style.
 
 # About Models
 
