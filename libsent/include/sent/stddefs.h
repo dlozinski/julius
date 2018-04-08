@@ -217,6 +217,7 @@ typedef unsigned short WORD_ID; ///< Typedef for word ID
 #define MAXPATHLEN 2048
 #endif
 
+#define DNN 1
 #include <sent/util.h>
 
 #endif /* __SENT_STANDARD_DEFS__ */
