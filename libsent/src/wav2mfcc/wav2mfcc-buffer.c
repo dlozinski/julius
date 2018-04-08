@@ -297,11 +297,14 @@ void MVN(float **mfcc, int frame_num, Value *para, CMNWork *c)
       /* mean normalization (base MFCC only) */
       for(i = 0; i < basedim; i++) mfcc[t][i] -= mfcc_mean[i];
     }
+
+#ifndef DNN    
+    // when no DNN is configured classic behavior is enabled
     if (para->cvn) {
       /* variance normalization (full MFCC) */
       for(i = 0; i < para->veclen; i++) mfcc[t][i] /= mfcc_sd[i];
-
     }
+#endif
   }
 
   /* LMP - order was changed to apply DNN mean & variance calculation
