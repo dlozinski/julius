@@ -217,6 +217,8 @@ typedef unsigned short WORD_ID; ///< Typedef for word ID
 #define MAXPATHLEN 2048
 #endif
 
+/// Defining DNN as enabled will allow working with HTK based DNN models, 
+/// Undefining DNN will allow to work with classic models
 #define DNN 1
 #include <sent/util.h>
 
