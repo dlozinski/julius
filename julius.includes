@@ -42,3 +42,4 @@ msvc/Library_zlib/src/contrib/puff
 msvc/Library_zlib/src/examples
 msvc/SampleApp
 plugin
+julius-simple

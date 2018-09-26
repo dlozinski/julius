@@ -71,6 +71,7 @@ jcontrol/japi_misc.c
 jcontrol/japi_process.c
 jcontrol/jcontrol.c
 jcontrol/server.c
+julius-simple/Makefile
 julius-simple/julius-simple.c
 julius/app.h
 julius/charconv.c

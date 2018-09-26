@@ -28,7 +28,7 @@ static void
 status_recstart(Recog *recog, void *dummy)
 {
   if (recog->jconf->input.speech_input == SP_MIC || recog->jconf->input.speech_input == SP_NETAUDIO) {
-    fprintf(stderr, "\r                    \r");
+    fprintf(stderr, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!!!!!!!!!!!!!!!!!!!!!!!\n");
   }
 }
 
