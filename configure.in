@@ -5,7 +5,7 @@ dnl All rights reserved
 dnl
 AC_INIT(Sample.jconf)
 AC_CONFIG_AUX_DIR(support)
-AC_CONFIG_SUBDIRS(adintool mkgshmm gramtools jcontrol mkbingram julius libjulius libsent)
+AC_CONFIG_SUBDIRS(adintool mkgshmm gramtools jcontrol mkbingram libjulius libsent julius)
 
 dnl all configure options will be passed to all subdirectries.
 

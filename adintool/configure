@@ -591,6 +591,7 @@ SDL_CFLAGS
 PKG_CONFIG_LIBDIR
 PKG_CONFIG_PATH
 PKG_CONFIG
+SDL2_FRAMEWORK
 RM
 INSTALL_DATA
 INSTALL_SCRIPT
@@ -630,6 +631,7 @@ infodir
 docdir
 oldincludedir
 includedir
+runstatedir
 localstatedir
 sharedstatedir
 sysconfdir
@@ -658,6 +660,7 @@ enable_sdlmain
 with_sdl_prefix
 with_sdl_exec_prefix
 enable_sdltest
+enable_sdlframework
 '
       ac_precious_vars='build_alias
 host_alias
@@ -668,6 +671,7 @@ LDFLAGS
 LIBS
 CPPFLAGS
 CPP
+SDL2_FRAMEWORK
 PKG_CONFIG
 PKG_CONFIG_PATH
 PKG_CONFIG_LIBDIR
@@ -711,6 +715,7 @@ datadir='${datarootdir}'
 sysconfdir='${prefix}/etc'
 sharedstatedir='${prefix}/com'
 localstatedir='${prefix}/var'
+runstatedir='${localstatedir}/run'
 includedir='${prefix}/include'
 oldincludedir='/usr/include'
 docdir='${datarootdir}/doc/${PACKAGE}'
@@ -963,6 +968,15 @@ do
   | -silent | --silent | --silen | --sile | --sil)
     silent=yes ;;
 
+  -runstatedir | --runstatedir | --runstatedi | --runstated \
+  | --runstate | --runstat | --runsta | --runst | --runs \
+  | --run | --ru | --r)
+    ac_prev=runstatedir ;;
+  -runstatedir=* | --runstatedir=* | --runstatedi=* | --runstated=* \
+  | --runstate=* | --runstat=* | --runsta=* | --runst=* | --runs=* \
+  | --run=* | --ru=* | --r=*)
+    runstatedir=$ac_optarg ;;
+
   -sbindir | --sbindir | --sbindi | --sbind | --sbin | --sbi | --sb)
     ac_prev=sbindir ;;
   -sbindir=* | --sbindir=* | --sbindi=* | --sbind=* | --sbin=* \
@@ -1100,7 +1114,7 @@ fi
 for ac_var in	exec_prefix prefix bindir sbindir libexecdir datarootdir \
 		datadir sysconfdir sharedstatedir localstatedir includedir \
 		oldincludedir docdir infodir htmldir dvidir pdfdir psdir \
-		libdir localedir mandir
+		libdir localedir mandir runstatedir
 do
   eval ac_val=\$$ac_var
   # Remove trailing slashes.
@@ -1253,6 +1267,7 @@ Fine tuning of the installation directories:
   --sysconfdir=DIR        read-only single-machine data [PREFIX/etc]
   --sharedstatedir=DIR    modifiable architecture-independent data [PREFIX/com]
   --localstatedir=DIR     modifiable single-machine data [PREFIX/var]
+  --runstatedir=DIR       modifiable per-process data [LOCALSTATEDIR/run]
   --libdir=DIR            object code libraries [EPREFIX/lib]
   --includedir=DIR        C header files [PREFIX/include]
   --oldincludedir=DIR     C header files for non-gcc [/usr/include]
@@ -1288,6 +1303,7 @@ Optional Features:
   --disable-sdl      do not compile gui version, which requires SDL2
   --disable-sdlmain  do not use SDL main function
   --disable-sdltest       Do not try to compile and run a test SDL program
+  --disable-sdlframework Do not search for SDL2.framework
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1304,6 +1320,8 @@ Some influential environment variables:
   CPPFLAGS    (Objective) C/C++ preprocessor flags, e.g. -I<include dir> if
               you have headers in a nonstandard directory <include dir>
   CPP         C preprocessor
+  SDL2_FRAMEWORK
+              Path to SDL2.framework
   PKG_CONFIG  path to pkg-config utility
   PKG_CONFIG_PATH
               directories to add to pkg-config's search path
@@ -3254,6 +3272,15 @@ else
   enable_sdltest=yes
 fi
 
+# Check whether --enable-sdlframework was given.
+if test "${enable_sdlframework+set}" = set; then :
+  enableval=$enable_sdlframework;
+else
+  search_sdl_framework=yes
+fi
+
+
+
 
   min_sdl_version=2.0.0
 
@@ -3395,15 +3422,39 @@ fi
 
 
     PATH="$as_save_PATH"
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SDL - version >= $min_sdl_version" >&5
-$as_echo_n "checking for SDL - version >= $min_sdl_version... " >&6; }
     no_sdl=""
 
-    if test "$SDL2_CONFIG" = "no" ; then
-      no_sdl=yes
-    else
-      SDL_CFLAGS=`$SDL2_CONFIG $sdl_config_args --cflags`
-      SDL_LIBS=`$SDL2_CONFIG $sdl_config_args --libs`
+    if test "$SDL2_CONFIG" = "no" -a "x$search_sdl_framework" = "xyes"; then
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SDL2.framework" >&5
+$as_echo_n "checking for SDL2.framework... " >&6; }
+      if test "x$SDL2_FRAMEWORK" != x; then
+        sdl_framework=$SDL2_FRAMEWORK
+      else
+        for d in / ~/ /System/; do
+          if test -d "$dLibrary/Frameworks/SDL2.framework"; then
+            sdl_framework="$dLibrary/Frameworks/SDL2.framework"
+          fi
+        done
+      fi
+
+      if test -d $sdl_framework; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: $sdl_framework" >&5
+$as_echo "$sdl_framework" >&6; }
+        sdl_framework_dir=`dirname $sdl_framework`
+        SDL_CFLAGS="-F$sdl_framework_dir -Wl,-framework,SDL2 -I$sdl_framework/include"
+        SDL_LIBS="-F$sdl_framework_dir -Wl,-framework,SDL2"
+      else
+        no_sdl=yes
+      fi
+    fi
+
+    if test "$SDL2_CONFIG" != "no"; then
+      if test "x$sdl_pc" = "xno"; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SDL - version >= $min_sdl_version" >&5
+$as_echo_n "checking for SDL - version >= $min_sdl_version... " >&6; }
+        SDL_CFLAGS=`$SDL2_CONFIG $sdl_config_args --cflags`
+        SDL_LIBS=`$SDL2_CONFIG $sdl_config_args --libs`
+      fi
 
       sdl_major_version=`$SDL2_CONFIG $sdl_config_args --version | \
              sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\1/'`
@@ -3495,14 +3546,17 @@ fi
         CFLAGS="$ac_save_CFLAGS"
         CXXFLAGS="$ac_save_CXXFLAGS"
         LIBS="$ac_save_LIBS"
+
       fi
-    fi
-    if test "x$no_sdl" = x ; then
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-    else
-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+      if test "x$sdl_pc" = "xno"; then
+        if test "x$no_sdl" = "xyes"; then
+          { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
+        else
+          { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+        fi
+      fi
     fi
   fi
   if test "x$no_sdl" = x ; then
@@ -3566,11 +3620,6 @@ rm -f core conftest.err conftest.$ac_objext \
      SDL_CFLAGS=""
      SDL_LIBS=""
      :
-  fi
-    if test "x$want_sdlmain" != "xyes"; then
-    SDL_CFLAGS=`echo $SDL_CFLAGS | sed -e 's/-Dmain=SDL_main//g'`
-    SDL_LIBS=`echo $SDL_LIBS | sed -e 's/-lSDL2main//g'`
-    SDL_CFLAGS="$SDL_CFLAGS -DNO_SDL_MAIN"
   fi
 
 
