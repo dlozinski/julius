@@ -65,7 +65,7 @@ extern "C" {
 /* readfile.c */
 char *getl(char *, int, FILE *);
 char *getl_fp(char *, int, FILE *);
-char *get_line_from_stdin(char *buf, int buflen, char *prompt);
+char *get_line_from_stdin(char *buf, int buflen, const char *prompt);
 
 /* gzfile.c */
 FILE *fopen_readfile(char *);

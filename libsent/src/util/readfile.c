@@ -115,7 +115,7 @@ getl_fp(char *buf, int maxlen, FILE *fp)
  * @return pointer to @a buf, or NULL on EOF input.
  */
 char *
-get_line_from_stdin(char *buf, int buflen, char *prompt)
+get_line_from_stdin(char *buf, int buflen, const char *prompt)
 {
   char *p;
 
